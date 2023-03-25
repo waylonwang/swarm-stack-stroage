@@ -10,7 +10,7 @@ services:
     environment:
       - SIGNUPS_ALLOWED=false
       - INVITATIONS_ALLOWED=false
-      - ADMIN_TOKEN=r6oC4oidcDVdA7qghNba547hx998asyY
+      - ADMIN_TOKEN=${VAULTWARDEN_TOKEN}
     restart: always
     deploy:
       labels:
