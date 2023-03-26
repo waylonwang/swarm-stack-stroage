@@ -1,6 +1,7 @@
 version: "3.4"
 
 services:
+  # Bitwarden保险库
   vaultwarden:
     image: vaultwarden/server:latest
     networks:
