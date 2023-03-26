@@ -36,7 +36,8 @@ services:
       - network_cluster
     restart: always
     ports:
-      - 25000:5000
+      # 内网直接访问端口
+      - 40050:5000
     volumes:
       - homenas_registry:/var/lib/registry
     env_file: 
@@ -47,7 +48,7 @@ services:
         - "traefik.http.routers.registry.rule=Host(`registry.cloudvalley.name`)"
         - "traefik.http.routers.registry.entrypoints=websecure"
         - "traefik.http.routers.registry.service=registry"
-        - "traefik.http.routers.registry.middlewares=noauth-chain@file,cors-headers@file"
+        - "traefik.http.routers.registry.middlewares=noauth-chain@file,cors-headers@file" # registryui访问需要CORS标头
         - "traefik.http.services.registry.loadbalancer.server.port=5000"     
       mode: replicated
       replicas: 1
@@ -88,7 +89,14 @@ services:
     image: joxit/docker-registry-ui:latest
     networks: 
       - network_cluster
+    environment:
+      - DELETE_IMAGES=true
+      - REGISTRY_TITLE=Swarm Registry
+      - NGINX_PROXY_PASS_URL=https://registry.cloudvalley.name:4
+      - SINGLE_REGISTRY=true    
     volumes:
+      # Portainer Stack生成的容器环境变量有问题，无法正确更新90-docker-registry-ui.sh
+      # 挂载卷用以手工替换/docker-entrypoint.d/90-docker-registry-ui.sh中的环境变量
       - homenas_registryui:/docker-entrypoint.d
     deploy:
       labels:
@@ -96,7 +104,7 @@ services:
         - "traefik.http.routers.registryui.rule=Host(`registryui.cloudvalley.name`)"
         - "traefik.http.routers.registryui.entrypoints=websecure"
         - "traefik.http.routers.registryui.service=registryui"
-        - "traefik.http.routers.registryui.middlewares=noauth-chain@file"
+        - "traefik.http.routers.registryui.middlewares=auth-chain@file"
         - "traefik.http.services.registryui.loadbalancer.server.port=80" 
       mode: replicated
       replicas: 1
