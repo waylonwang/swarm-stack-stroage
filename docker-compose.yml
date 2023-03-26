@@ -60,7 +60,7 @@ services:
       - network_cluster
     environment:
       - MANAGER_PORT=8080
-      - MANAGER_REGISTRIES=/app/conf/registries.yml
+      #- MANAGER_REGISTRIES=/app/conf/registries.yml
       - MANAGER_LOG_LEVEL=warn
     volumes:
       - homenas_registryui:/app/conf
