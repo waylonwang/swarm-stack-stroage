@@ -59,7 +59,7 @@ services:
       - DELETE_IMAGES=true
       - REGISTRY_TITLE=My Private Docker Registry
       - REGISTRY_URL=https://registry.cloudvalley.name:4
-      #- NGINX_PROXY_PASS_URL=https://registry.cloudvalley.name:4
+      - NGINX_PROXY_PASS_URL= http://registry:25000
       - SINGLE_REGISTRY=false
     networks: 
       - network_cluster
