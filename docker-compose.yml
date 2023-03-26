@@ -10,7 +10,9 @@ services:
     environment:
       - SIGNUPS_ALLOWED=false
       - INVITATIONS_ALLOWED=false
-      - ADMIN_TOKEN=${VAULTWARDEN_TOKEN}
+    env_file:    
+      # 包含ADMIN_TOKEN 
+      - ../../stack.env      
     restart: always
     deploy:
       labels:
