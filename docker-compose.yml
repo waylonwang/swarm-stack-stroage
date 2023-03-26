@@ -1,29 +1,6 @@
 version: "3.4"
 
 services:
-  registry:
-    image: registry
-    networks:
-      - network_cluster
-    restart: always
-    ports:
-      - 5000:5000
-    volumes:
-      - homenas_registry:/var/lib/registry
-    deploy:
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.registry.rule=Host(`registry.cloudvalley.name`)"
-        - "traefik.http.routers.registry.entrypoints=websecure"
-        - "traefik.http.routers.registry.service=registry"
-        - "traefik.http.routers.registry.middlewares=noauth-chain@file"
-        - "traefik.http.services.registry.loadbalancer.server.port=5000"     
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.nas == primary
-
   vaultwarden:
     image: vaultwarden/server:latest
     networks:
@@ -50,6 +27,32 @@ services:
       placement:
         constraints:
           - node.labels.nas == primary
+
+  registry:
+    image: registry
+    networks:
+      - network_cluster
+    restart: always
+    ports:
+      - 5000:5000
+    volumes:
+      - homenas_registry:/var/lib/registry
+    env_file: 
+      - ../../stack.env       
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.registry.rule=Host(`registry.cloudvalley.name`)"
+        - "traefik.http.routers.registry.entrypoints=websecure"
+        - "traefik.http.routers.registry.service=registry"
+        - "traefik.http.routers.registry.middlewares=noauth-chain@file"
+        - "traefik.http.services.registry.loadbalancer.server.port=5000"     
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.type == nas
+
           
 networks:
   network_cluster:
@@ -60,13 +63,13 @@ x-common-keys-volume: &common-keys-volume
   o: addr=192.168.11.99,rw,nfsvers=4
   
 volumes:
-  homenas_registry: 
-    driver: local
-    driver_opts:
-      <<: *common-keys-volume
-      device: :/volume1/docker/swarm/storage/registry
   homenas_vaultwarden: 
     driver: local
     driver_opts:
       <<: *common-keys-volume
       device: :/volume1/docker/swarm/storage/vaultwarden/data
+  homenas_registry: 
+    driver: local
+    driver_opts:
+      <<: *common-keys-volume
+      device: :/volume1/docker/swarm/storage/registry
