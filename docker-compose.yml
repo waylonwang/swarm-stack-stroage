@@ -55,7 +55,7 @@ services:
 
   registryui:
     image: snagles/docker-registry-manager:latest
-    command: ["/app/app -r /app/conf/registries.yml"]
+    command: ["/app/app"]
     networks: 
       - network_cluster
     environment:
