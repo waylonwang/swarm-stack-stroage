@@ -47,7 +47,7 @@ services:
         - "traefik.http.routers.registry.rule=Host(`registry.cloudvalley.name`)"
         - "traefik.http.routers.registry.entrypoints=websecure"
         - "traefik.http.routers.registry.service=registry"
-        - "traefik.http.routers.registry.middlewares=noauth-chain@file"
+        - "traefik.http.routers.registry.middlewares=noauth-chain@file,cors-headers@file"
         - "traefik.http.services.registry.loadbalancer.server.port=5000"     
       mode: replicated
       replicas: 1
@@ -76,7 +76,7 @@ services:
         - "traefik.http.routers.registryadmin.entrypoints=websecure"
         - "traefik.http.routers.registryadmin.service=registryadmin"
         - "traefik.http.routers.registryadmin.middlewares=auth-chain@file"
-        - "traefik.http.services.registryadmin.loadbalancer.server.port=8080" 
+        - "traefik.http.services.registryadmin.loadbalancer.server.port=8080"      
       mode: replicated
       replicas: 1
       placement:
