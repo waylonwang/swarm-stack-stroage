@@ -55,8 +55,8 @@ services:
         constraints:
           - node.labels.type == nas
 
-  # Docker私有库UI
-  registryui:
+  # Docker私有库Manager
+  registryadmin:
     image: snagles/docker-registry-manager:latest
     command: ["/app/app","-r","/app/conf/registries.yml"]
     networks: 
@@ -68,15 +68,36 @@ services:
       #- MANAGER_REGISTRIES=/app/conf/registries.yml
       - MANAGER_LOG_LEVEL=warn
     volumes:
-      - homenas_registryui:/app/conf
+      - homenas_registryadmin:/app/conf
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.registryadmin.rule=Host(`registryadmin.cloudvalley.name`)"
+        - "traefik.http.routers.registryadmin.entrypoints=websecure"
+        - "traefik.http.routers.registryadmin.service=registryadmin"
+        - "traefik.http.routers.registryadmin.middlewares=auth-chain@file"
+        - "traefik.http.services.registryadmin.loadbalancer.server.port=8080" 
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.type == nas
+                    
+  # Docker私有库UI
+  registryui:
+    image: joxit/docker-registry-ui:latest
+    networks: 
+      - network_cluster
+    volumes:
+      - homenas_registryui:/docker-entrypoint.d
     deploy:
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.registryui.rule=Host(`registryui.cloudvalley.name`)"
         - "traefik.http.routers.registryui.entrypoints=websecure"
         - "traefik.http.routers.registryui.service=registryui"
-        - "traefik.http.routers.registryui.middlewares=auth-chain@file"
-        - "traefik.http.services.registryui.loadbalancer.server.port=8080" 
+        - "traefik.http.routers.registryui.middlewares=noauth-chain@file"
+        - "traefik.http.services.registryui.loadbalancer.server.port=80" 
       mode: replicated
       replicas: 1
       placement:
@@ -102,8 +123,13 @@ volumes:
     driver_opts:
       <<: *common-keys-volume
       device: :/volume1/docker/swarm/storage/registry
+  homenas_registryadmin:
+    driver: local
+    driver_opts:
+      <<: *common-keys-volume
+      device: :/volume1/docker/swarm/storage/docker-registry-manager/conf
   homenas_registryui:
     driver: local
     driver_opts:
       <<: *common-keys-volume
-      device: :/volume1/docker/swarm/storage/docker-registry-manager/conf    
+      device: :/volume1/docker/swarm/storage/docker-registry-ui/sh   
