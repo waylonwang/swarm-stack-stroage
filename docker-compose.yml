@@ -34,7 +34,7 @@ services:
       - network_cluster
     restart: always
     ports:
-      - 5000:5000
+      - 25000:5000
     volumes:
       - homenas_registry:/var/lib/registry
     env_file: 
@@ -58,8 +58,9 @@ services:
     environment:
       - DELETE_IMAGES=true
       - REGISTRY_TITLE=My Private Docker Registry
-      - NGINX_PROXY_PASS_URL=http://registry:5000
-      #- SINGLE_REGISTRY=true
+      - REGISTRY_URL=https://registry.cloudvalley.name:4
+      - NGINX_PROXY_PASS_URL=https://registry.cloudvalley.name:4
+      - SINGLE_REGISTRY=true
     networks: 
       - network_cluster
     deploy:
