@@ -29,6 +29,7 @@ services:
         constraints:
           - node.labels.nas == primary
 
+  # Docker私有库
   registry:
     image: registry
     networks:
@@ -54,6 +55,7 @@ services:
         constraints:
           - node.labels.type == nas
 
+  # Docker私有库UI
   registryui:
     image: snagles/docker-registry-manager:latest
     command: ["/app/app","-r","/app/conf/registries.yml"]
@@ -73,7 +75,7 @@ services:
         - "traefik.http.routers.registryui.rule=Host(`registryui.cloudvalley.name`)"
         - "traefik.http.routers.registryui.entrypoints=websecure"
         - "traefik.http.routers.registryui.service=registryui"
-        - "traefik.http.routers.registryui.middlewares=noauth-chain@file"
+        - "traefik.http.routers.registryui.middlewares=auth-chain@file"
         - "traefik.http.services.registryui.loadbalancer.server.port=8080" 
       mode: replicated
       replicas: 1
