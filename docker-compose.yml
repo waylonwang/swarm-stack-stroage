@@ -83,7 +83,7 @@ services:
       placement:
         constraints:
           - node.labels.type == nas
-                    
+
   # Docker私有库UI
   registryui:
     image: joxit/docker-registry-ui:latest
