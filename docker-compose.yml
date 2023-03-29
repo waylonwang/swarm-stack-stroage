@@ -140,4 +140,4 @@ volumes:
     driver: local
     driver_opts:
       <<: *common-keys-volume
-      device: :/volume1/docker/swarm/storage/docker-registry-ui/sh   
+      device: :/volume1/docker/swarm/storage/docker-registry-ui/sh
