@@ -111,7 +111,7 @@ services:
       placement:
         constraints:
           - node.labels.type == nas
-                    
+
 networks:
   network_cluster:
     external: true
