@@ -25,7 +25,8 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.labels.nas == primary
+          - node.labels.type == vm
+          - node.labels.database == true
 
   # Docker私有库
   registry:
@@ -37,9 +38,7 @@ services:
       # 内网直接访问端口
       - 40050:5000
     volumes:
-      - nfs_registry:/var/lib/registry
-    env_file: 
-      - ../../stack.env       
+      - nfs_registry:/var/lib/registry     
     deploy:
       labels:
         - "traefik.enable=true"
@@ -52,7 +51,8 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.labels.type == nas
+          - node.labels.type == vm
+          - node.labels.media == true
 
   # Docker私有库Manager
   registryadmin:
@@ -80,7 +80,8 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.labels.type == nas
+          - node.labels.type == vm
+          - node.labels.media == true
 
   # Docker私有库UI
   registryui:
@@ -108,7 +109,8 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.labels.type == nas
+          - node.labels.type == vm
+          - node.labels.media == true
 
 networks:
   network_cluster:
