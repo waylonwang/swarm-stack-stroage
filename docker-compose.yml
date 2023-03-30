@@ -7,18 +7,16 @@ services:
     networks:
       - network_cluster
     volumes:
-      - homenas_vaultwarden:/data
+      - nfs_vaultwarden:/data
     environment:
       - SIGNUPS_ALLOWED=false
       - INVITATIONS_ALLOWED=false
-    env_file:    
-      # 包含ADMIN_TOKEN 
-      - ../../stack.env      
+      - ADMIN_TOKEN=${VAULTWARDEN_ADMIN_TOKEN}    
     restart: always
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.vaultwarden.rule=Host(`vaultwarden.cloudvalley.name`)"
+        - "traefik.http.routers.vaultwarden.rule=Host(`vaultwarden.${DOMAIN_SWARM}`)"
         - "traefik.http.routers.vaultwarden.entrypoints=websecure"
         - "traefik.http.routers.vaultwarden.service=vaultwarden"
         - "traefik.http.routers.vaultwarden.middlewares=noauth-chain@file"
@@ -39,13 +37,13 @@ services:
       # 内网直接访问端口
       - 40050:5000
     volumes:
-      - homenas_registry:/var/lib/registry
+      - nfs_registry:/var/lib/registry
     env_file: 
       - ../../stack.env       
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.registry.rule=Host(`registry.cloudvalley.name`)"
+        - "traefik.http.routers.registry.rule=Host(`registry.${DOMAIN_SWARM}`)"
         - "traefik.http.routers.registry.entrypoints=websecure"
         - "traefik.http.routers.registry.service=registry"
         - "traefik.http.routers.registry.middlewares=noauth-chain@file,cors-headers@file" # registryui访问需要CORS标头
@@ -69,11 +67,11 @@ services:
       #- MANAGER_REGISTRIES=/app/conf/registries.yml
       - MANAGER_LOG_LEVEL=warn
     volumes:
-      - homenas_registryadmin:/app/conf
+      - nfs_registryadmin:/app/conf
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.registryadmin.rule=Host(`registryadmin.cloudvalley.name`)"
+        - "traefik.http.routers.registryadmin.rule=Host(`registryadmin.${DOMAIN_SWARM}`)"
         - "traefik.http.routers.registryadmin.entrypoints=websecure"
         - "traefik.http.routers.registryadmin.service=registryadmin"
         - "traefik.http.routers.registryadmin.middlewares=auth-chain@file"
@@ -92,16 +90,16 @@ services:
     environment:
       - DELETE_IMAGES=true
       - REGISTRY_TITLE=Swarm Registry
-      - NGINX_PROXY_PASS_URL=https://registry.cloudvalley.name:4
+      - NGINX_PROXY_PASS_URL=https://registry.${DOMAIN_SWARM}:4
       - SINGLE_REGISTRY=true    
     volumes:
       # Portainer Stack生成的容器环境变量有问题，无法正确更新90-docker-registry-ui.sh
       # 挂载卷用以手工替换/docker-entrypoint.d/90-docker-registry-ui.sh中的环境变量
-      - homenas_registryui:/docker-entrypoint.d
+      - nfs_registryui:/docker-entrypoint.d
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.registryui.rule=Host(`registryui.cloudvalley.name`)"
+        - "traefik.http.routers.registryui.rule=Host(`registryui.${DOMAIN_SWARM}`)"
         - "traefik.http.routers.registryui.entrypoints=websecure"
         - "traefik.http.routers.registryui.service=registryui"
         - "traefik.http.routers.registryui.middlewares=auth-chain@file"
@@ -118,26 +116,26 @@ networks:
      
 x-common-keys-volume: &common-keys-volume
   type: nfs
-  o: addr=192.168.11.99,rw,nfsvers=4
+  o: addr=${NFS_SERVER},rw,nfsvers=4
   
 volumes:
-  homenas_vaultwarden:
+  nfs_vaultwarden:
     driver: local
     driver_opts:
       <<: *common-keys-volume
-      device: :/volume1/docker/swarm/storage/vaultwarden/data
-  homenas_registry:
+      device: :${NFS_DEVICE}/storage/vaultwarden/data
+  nfs_registry:
     driver: local
     driver_opts:
       <<: *common-keys-volume
-      device: :/volume1/docker/swarm/storage/registry
-  homenas_registryadmin:
+      device: :${NFS_DEVICE}/storage/registry
+  nfs_registryadmin:
     driver: local
     driver_opts:
       <<: *common-keys-volume
-      device: :/volume1/docker/swarm/storage/docker-registry-manager/conf
-  homenas_registryui:
+      device: :${NFS_DEVICE}/storage/docker-registry-manager/conf
+  nfs_registryui:
     driver: local
     driver_opts:
       <<: *common-keys-volume
-      device: :/volume1/docker/swarm/storage/docker-registry-ui/sh
+      device: :${NFS_DEVICE}/storage/docker-registry-ui/sh
