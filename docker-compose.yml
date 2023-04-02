@@ -36,7 +36,11 @@ services:
     restart: always
     ports:
       # 内网直接访问端口
-      - 40050:5000
+      - 5000:5000
+    environment:
+      REGISTRY_PROXY_REMOTEURL: ${REGISTRY_PROXY_REMOTEURL}
+      REGISTRY_PROXY_USERNAME: ${REGISTRY_PROXY_USERNAME}
+      REGISTRY_PROXY_PASSWORD: ${REGISTRY_PROXY_PASSWORD}
     volumes:
       - nfs_registry:/var/lib/registry     
     deploy:
@@ -52,7 +56,7 @@ services:
       placement:
         constraints:
           - node.labels.type == vm
-          - node.labels.media == true
+          - node.labels.storage == true
 
   # Docker私有库Manager
   registryadmin:
