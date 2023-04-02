@@ -85,7 +85,7 @@ services:
       placement:
         constraints:
           - node.labels.type == vm
-          - node.labels.media == true
+          - node.labels.storage == true
 
   # Docker私有库UI
   registryui:
@@ -114,7 +114,7 @@ services:
       placement:
         constraints:
           - node.labels.type == vm
-          - node.labels.media == true
+          - node.labels.storage == true
 
 networks:
   network_cluster:
