@@ -8,8 +8,8 @@ services:
     networks: [network_cluster]
     restart: on-failure
     environment:
-      SIGNUPS_ALLOWED: false
-      INVITATIONS_ALLOWED: false
+      SIGNUPS_ALLOWED: "false"
+      INVITATIONS_ALLOWED: "false"
       ADMIN_TOKEN: ${VAULTWARDEN_ADMIN_TOKEN}
       TZ: ${TZ}
     volumes:
