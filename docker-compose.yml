@@ -95,10 +95,10 @@ services:
     networks: [network_cluster]
     restart: on-failure
     environment:
-      DELETE_IMAGES: true
-      REGISTRY_TITLE: Swarm Registry
-      NGINX_PROXY_PASS_URL: https://registry.${DOMAIN_SWARM}:4
-      SINGLE_REGISTRY: true
+      DELETE_IMAGES: "true"
+      REGISTRY_TITLE: "Swarm Registry"
+      SINGLE_REGISTRY: "true"
+      NGINX_PROXY_PASS_URL: "https://registry.${DOMAIN_SWARM}:4"
       TZ: ${TZ}
     volumes:
       # Portainer Stack生成的容器环境变量有问题，无法正确更新90-docker-registry-ui.sh
