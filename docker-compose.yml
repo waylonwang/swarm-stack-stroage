@@ -5,15 +5,15 @@ services:
   # Bitwarden保险库
   vaultwarden:
     image: vaultwarden/server:latest
-    networks:
-      - network_cluster
+    networks: [network_cluster]
+    restart: on-failure
+    environment:
+      SIGNUPS_ALLOWED: false
+      INVITATIONS_ALLOWED: false
+      ADMIN_TOKEN: ${VAULTWARDEN_ADMIN_TOKEN}
+      TZ: ${TZ}
     volumes:
       - nfs_vaultwarden:/data
-    environment:
-      - SIGNUPS_ALLOWED=false
-      - INVITATIONS_ALLOWED=false
-      - ADMIN_TOKEN=${VAULTWARDEN_ADMIN_TOKEN}
-    restart: always
     deploy:
       labels:
         - "traefik.enable=true"
@@ -32,9 +32,8 @@ services:
   # Docker私有库
   registry:
     image: registry
-    networks:
-      - network_cluster
-    restart: always
+    networks: [network_cluster]
+    restart: on-failure
     ports:
       # 内网直接访问端口
       - 5000:5000
@@ -42,6 +41,7 @@ services:
       REGISTRY_PROXY_REMOTEURL: ${REGISTRY_PROXY_REMOTEURL}
       REGISTRY_PROXY_USERNAME: ${REGISTRY_PROXY_USERNAME}
       REGISTRY_PROXY_PASSWORD: ${REGISTRY_PROXY_PASSWORD}
+      TZ: ${TZ}
     volumes:
       - nfs_registry:/var/lib/registry
     deploy:
@@ -63,14 +63,15 @@ services:
   registryadmin:
     image: snagles/docker-registry-manager:latest
     command: ["/app/app", "-r", "/app/conf/registries.yml"]
-    networks:
-      - network_cluster
+    networks: [network_cluster]
+    restart: on-failure
     environment:
-      - MANAGER_PORT=8080
+      MANAGER_PORT: 8080
       # NFS挂载卷不支持文件映射，只支持目录映射
       # 通过命令行更改/app/registries.yml的默认位置为/app/conf/registries.yml
       #- MANAGER_REGISTRIES=/app/conf/registries.yml
-      - MANAGER_LOG_LEVEL=warn
+      MANAGER_LOG_LEVEL: warn
+      TZ: ${TZ}
     volumes:
       - nfs_registryadmin:/app/conf
     deploy:
@@ -91,13 +92,14 @@ services:
   # Docker私有库UI
   registryui:
     image: joxit/docker-registry-ui:latest
-    networks:
-      - network_cluster
+    networks: [network_cluster]
+    restart: on-failure
     environment:
-      - DELETE_IMAGES=true
-      - REGISTRY_TITLE=Swarm Registry
-      - NGINX_PROXY_PASS_URL=https://registry.${DOMAIN_SWARM}:4
-      - SINGLE_REGISTRY=true
+      DELETE_IMAGES: true
+      REGISTRY_TITLE: Swarm Registry
+      NGINX_PROXY_PASS_URL: https://registry.${DOMAIN_SWARM}:4
+      SINGLE_REGISTRY: true
+      TZ: ${TZ}
     volumes:
       # Portainer Stack生成的容器环境变量有问题，无法正确更新90-docker-registry-ui.sh
       # 挂载卷用以手工替换/docker-entrypoint.d/90-docker-registry-ui.sh中的环境变量
