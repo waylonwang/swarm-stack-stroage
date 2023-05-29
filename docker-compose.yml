@@ -119,6 +119,26 @@ services:
           - node.labels.type == vm
           - node.labels.storage == true
 
+  # CookieCloud
+  cookiecloud:
+    image: easychen/cookiecloud:latest
+    networks: [network_cluster]
+    restart: on-failure
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.cookiecloud.rule=Host(`cookiecloud.${DOMAIN_SWARM}`)"
+        - "traefik.http.routers.cookiecloud.entrypoints=websecure"
+        - "traefik.http.routers.cookiecloud.service=cookiecloud"
+        - "traefik.http.routers.cookiecloud.middlewares=noauth-chain@file"
+        - "traefik.http.services.cookiecloud.loadbalancer.server.port=8088"
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.type == vm
+          - node.labels.storage == true      
+
 networks:
   network_cluster:
     external: true
