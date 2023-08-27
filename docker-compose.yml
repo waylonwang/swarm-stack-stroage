@@ -98,6 +98,7 @@ services:
       DELETE_IMAGES: "true"
       REGISTRY_TITLE: "Swarm Registry"
       SINGLE_REGISTRY: "true"
+      TAGLIST_ORDER: "alpha-asc;num-desc"
       NGINX_PROXY_PASS_URL: "https://registry.${DOMAIN_SWARM}:4"
       TZ: ${TZ}
     volumes:
