@@ -23,7 +23,7 @@ services:
         - "traefik.http.routers.vaultwarden.middlewares=noauth-chain@file"
         - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
         - homepage.group=Application
-        - homepage.name=VaultWarden
+        - homepage.name=Vault Admin
         - homepage.icon=bitwarden.png
         - homepage.href=https://vaultwarden.${DOMAIN_SWARM}:4/
         - homepage.description=密码管理器
@@ -90,7 +90,7 @@ services:
         - "traefik.http.routers.registryadmin.middlewares=auth-chain@file"
         - "traefik.http.services.registryadmin.loadbalancer.server.port=8080"
         - homepage.group=Application
-        - homepage.name=DockerRegistryAdmin
+        - homepage.name=Docker Registry Admin
         - homepage.icon=docker.png
         - homepage.href=https://registryadmin.${DOMAIN_SWARM}:4/
         - homepage.description=Docker仓库管理
