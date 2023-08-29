@@ -28,7 +28,7 @@ services:
         - homepage.href=https://vaultwarden.${DOMAIN_SWARM}:4/
         - homepage.description=密码管理器
         - homepage.ping=http://vaultwarden
-        - homepage.weight=1
+        - homepage.weight=3
       mode: replicated
       replicas: 1
       placement:
@@ -95,7 +95,7 @@ services:
         - homepage.href=https://registryadmin.${DOMAIN_SWARM}:4/
         - homepage.description=Docker仓库管理
         - homepage.ping=http://registryadmin:8080
-        - homepage.weight=3
+        - homepage.weight=4
       mode: replicated
       replicas: 1
       placement:
