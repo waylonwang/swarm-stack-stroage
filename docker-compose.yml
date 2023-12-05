@@ -27,7 +27,7 @@ services:
         - homepage.icon=bitwarden.png
         - homepage.href=https://vaultwarden.${DOMAIN_SWARM}:4/
         - homepage.description=密码管理器
-        - homepage.ping=http://vaultwarden
+        - homepage.siteMonitor=http://vaultwarden
         - homepage.weight=1
       mode: replicated
       replicas: 1
@@ -100,7 +100,7 @@ services:
         - homepage.icon=docker.png
         - homepage.href=https://registryadmin.${DOMAIN_SWARM}:4/
         - homepage.description=Docker仓库管理
-        - homepage.ping=http://registryadmin:8080
+        - homepage.siteMonitor=http://registryadmin:8080
         - homepage.weight=4
       mode: replicated
       replicas: 1
@@ -158,7 +158,7 @@ services:
         - homepage.icon=docker.png
         - homepage.href=https://cookiecloud.${DOMAIN_SWARM}:4/
         - homepage.description=Cookie Cloud
-        - homepage.ping=http://cookiecloud:8088
+        - homepage.siteMonitor=http://cookiecloud:8088
         - homepage.weight=10        
       mode: replicated
       replicas: 1
