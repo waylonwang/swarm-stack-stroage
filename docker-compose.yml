@@ -22,13 +22,13 @@ services:
         - "traefik.http.routers.vaultwarden.service=vaultwarden"
         - "traefik.http.routers.vaultwarden.middlewares=noauth-chain@file"
         - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
-        - homepage.group=Application
+        - homepage.group=Storage
         - homepage.name=Vault Admin
         - homepage.icon=bitwarden.png
         - homepage.href=https://vaultwarden.${DOMAIN_SWARM}:4/
         - homepage.description=密码管理器
         - homepage.ping=http://vaultwarden
-        - homepage.weight=3
+        - homepage.weight=1
       mode: replicated
       replicas: 1
       placement:
@@ -59,6 +59,12 @@ services:
         - "traefik.http.routers.registry.service=registry"
         - "traefik.http.routers.registry.middlewares=noauth-chain@file,cors-headers@file" # registryui访问需要CORS标头
         - "traefik.http.services.registry.loadbalancer.server.port=5000"
+        - homepage.group=Storage
+        - homepage.name=Docker Registry
+        - homepage.icon=docker.png
+        - homepage.description=Docker仓库
+        - homepage.ping=registry
+        - homepage.weight=3   
       mode: replicated
       replicas: 1
       placement:
@@ -89,7 +95,7 @@ services:
         - "traefik.http.routers.registryadmin.service=registryadmin"
         - "traefik.http.routers.registryadmin.middlewares=auth-chain@file"
         - "traefik.http.services.registryadmin.loadbalancer.server.port=8080"
-        - homepage.group=Application
+        - homepage.group=Storage
         - homepage.name=Docker Registry Admin
         - homepage.icon=docker.png
         - homepage.href=https://registryadmin.${DOMAIN_SWARM}:4/
@@ -147,6 +153,13 @@ services:
         - "traefik.http.routers.cookiecloud.service=cookiecloud"
         - "traefik.http.routers.cookiecloud.middlewares=noauth-chain@file"
         - "traefik.http.services.cookiecloud.loadbalancer.server.port=8088"
+        - homepage.group=Storage
+        - homepage.name=Cookie Cloud
+        - homepage.icon=docker.png
+        - homepage.href=https://cookiecloud.${DOMAIN_SWARM}:4/
+        - homepage.description=Cookie Cloud
+        - homepage.ping=http://cookiecloud:8088
+        - homepage.weight=10        
       mode: replicated
       replicas: 1
       placement:
