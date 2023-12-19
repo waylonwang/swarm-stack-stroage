@@ -24,7 +24,7 @@ services:
         - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
         - homepage.group=Storage
         - homepage.name=Vault Admin
-        - homepage.icon=bitwarden.png
+        - homepage.icon=vaultwarden-light.png #bitwarden.png
         - homepage.href=https://vaultwarden.${DOMAIN_SWARM}:4/
         - homepage.description=密码管理器
         - homepage.siteMonitor=http://vaultwarden
@@ -155,10 +155,9 @@ services:
         - "traefik.http.services.cookiecloud.loadbalancer.server.port=8088"
         - homepage.group=Storage
         - homepage.name=Cookie Cloud
-        - homepage.icon=docker.png
-        - homepage.href=https://cookiecloud.${DOMAIN_SWARM}:4/
+        - homepage.icon=google-compute-engine.png
         - homepage.description=Cookie Cloud
-        - homepage.siteMonitor=http://cookiecloud:8088
+        - homepage.ping=cookiecloud
         - homepage.weight=10        
       mode: replicated
       replicas: 1
