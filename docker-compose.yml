@@ -30,11 +30,13 @@ services:
         - homepage.siteMonitor=http://vaultwarden
         - homepage.weight=1
       mode: replicated
-      replicas: 1
+      replicas: 2
       placement:
         constraints:
-          - node.labels.type == vm
+          # - node.labels.type == vm
+          # - node.labels.type == nas
           - node.labels.storage == true
+          # - node.labels.nas == primary           
 
   # Docker私有库
   registry:
