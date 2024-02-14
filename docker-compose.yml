@@ -161,6 +161,13 @@ services:
         - "traefik.http.routers.dockerregistryui.service=dockerregistryui"
         - "traefik.http.routers.dockerregistryui.middlewares=auth-chain@file"
         - "traefik.http.services.dockerregistryui.loadbalancer.server.port=8080"
+        - homepage.group=Storage
+        - homepage.name=Docker Registry UI
+        - homepage.icon=docker.png
+        - homepage.href=https://dockerregistryui.${DOMAIN_SWARM}:4/
+        - homepage.description=Docker仓库管理
+        - homepage.siteMonitor=http://dockerregistryui:8080
+        - homepage.weight=5
       mode: replicated
       replicas: 1
       placement:
