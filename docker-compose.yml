@@ -149,7 +149,7 @@ services:
     restart: on-failure
     environment:
       REGISTRY_HOST: dockerregistryui
-      REGISTRY_URL: "https://registry.${DOMAIN_SWARM}:4"
+      REGISTRY_URL: "https://registry:5000"
       TZ: ${TZ}
     volumes:
       - nfs_dockerregistryui:/docker-entrypoint.d    
