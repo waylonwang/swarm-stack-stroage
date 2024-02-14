@@ -142,6 +142,32 @@ services:
           - node.labels.type == vm
           - node.labels.storage == true
 
+  # Docker私有库UI
+  dockerregistryui:
+    image: descartesresearch/dockerregistryui
+    networks: [network_cluster]
+    restart: on-failure
+    environment:
+      REGISTRY_HOST: dockerregistryui
+      REGISTRY_URL: "https://registry.${DOMAIN_SWARM}:4"
+      TZ: ${TZ}
+    volumes:
+      - nfs_dockerregistryui:/docker-entrypoint.d    
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.dockerregistryui.rule=Host(`dockerregistryui.${DOMAIN_SWARM}`)"
+        - "traefik.http.routers.dockerregistryui.entrypoints=websecure"
+        - "traefik.http.routers.dockerregistryui.service=dockerregistryui"
+        - "traefik.http.routers.dockerregistryui.middlewares=auth-chain@file"
+        - "traefik.http.services.dockerregistryui.loadbalancer.server.port=8080"
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.type == vm
+          - node.labels.storage == true          
+
   # CookieCloud
   cookiecloud:
     image: easychen/cookiecloud:latest
@@ -197,3 +223,8 @@ volumes:
     driver_opts:
       <<: *common-keys-volume
       device: :${NFS_DEVICE}/storage/docker-registry-ui/sh
+  nfs_dockerregistryui:
+    driver: local
+    driver_opts:
+      <<: *common-keys-volume
+      device: :${NFS_DEVICE}/storage/dockerregistry-ui/sh
