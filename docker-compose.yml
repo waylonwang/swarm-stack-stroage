@@ -234,4 +234,4 @@ volumes:
     driver: local
     driver_opts:
       <<: *common-keys-volume
-      device: :${NFS_DEVICE}/storage/dockerregistry-ui/sh
+      device: :${NFS_DEVICE}/storage/dockerregistry-ui
