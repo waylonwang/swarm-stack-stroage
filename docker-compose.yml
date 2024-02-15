@@ -154,7 +154,7 @@ services:
       # IGNORE_INSECURE_HTTPS: True
       TZ: ${TZ}
     volumes:
-      - nfs_dockerregistryui:/docker-entrypoint.d    
+      - nfs_dockerregistryui:/data
     deploy:
       labels:
         - "traefik.enable=true"
