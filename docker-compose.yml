@@ -189,7 +189,7 @@ services:
         - "traefik.http.routers.nexus.rule=Host(`nexus.${DOMAIN_SWARM}`)"
         - "traefik.http.routers.nexus.entrypoints=websecure"
         - "traefik.http.routers.nexus.service=nexus"
-        - "traefik.http.routers.nexus.middlewares=auth-chain@file"
+        - "traefik.http.routers.nexus.middlewares=noauth-chain@file"
         - "traefik.http.services.nexus.loadbalancer.server.port=8081"
         - homepage.group=Storage
         - homepage.name=Nexus
