@@ -177,6 +177,32 @@ services:
           - node.labels.type == vm
           - node.labels.storage == true          
 
+  nexus:
+    image: sonatype/nexus3
+    networks: [network_cluster]
+    restart: on-failure
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.nexus.rule=Host(`nexus.${DOMAIN_SWARM}`)"
+        - "traefik.http.routers.nexus.entrypoints=websecure"
+        - "traefik.http.routers.nexus.service=nexus"
+        - "traefik.http.routers.nexus.middlewares=auth-chain@file"
+        - "traefik.http.services.nexus.loadbalancer.server.port=8081"
+        - homepage.group=Storage
+        - homepage.name=Nexus
+        - homepage.icon=docker.png
+        - homepage.href=https://nexus.${DOMAIN_SWARM}:4/
+        - homepage.description=Docker仓库管理
+        - homepage.siteMonitor=http://nexus:8081
+        - homepage.weight=5
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.type == vm
+          - node.labels.storage == true  
+
   # CookieCloud
   cookiecloud:
     image: easychen/cookiecloud:latest
