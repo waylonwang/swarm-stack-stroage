@@ -181,6 +181,8 @@ services:
     image: sonatype/nexus3
     networks: [network_cluster]
     restart: on-failure
+    volumes:
+      - nfs_nexus_data:/nexus-data
     deploy:
       labels:
         - "traefik.enable=true"
@@ -263,3 +265,8 @@ volumes:
     driver_opts:
       <<: *common-keys-volume
       device: :${NFS_DEVICE}/storage/dockerregistry-ui
+  nfs_nexus_data:
+    driver: local
+    driver_opts:
+      <<: *common-keys-volume
+      device: :${NFS_DEVICE}/storage/nexus/data  
