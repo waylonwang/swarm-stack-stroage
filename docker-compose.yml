@@ -123,10 +123,10 @@ services:
       TAGLIST_ORDER: "alpha-asc;num-desc"
       NGINX_PROXY_PASS_URL: "https://registry.${DOMAIN_SWARM}:4"
       TZ: ${TZ}
-    volumes:
+    # volumes:
       # Portainer Stack生成的容器环境变量有问题，无法正确更新90-docker-registry-ui.sh
       # 挂载卷用以手工替换/docker-entrypoint.d/90-docker-registry-ui.sh中的环境变量
-      - nfs_registryui:/docker-entrypoint.d
+      # - nfs_registryui:/docker-entrypoint.d
     deploy:
       labels:
         - "traefik.enable=true"
