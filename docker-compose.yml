@@ -177,26 +177,28 @@ services:
           - node.labels.type == vm
           - node.labels.storage == true          
 
-  nexus:
-    image: sonatype/nexus3
+  dockerregistryfrontend:
+    image: konradkleine/docker-registry-frontend:v2
     networks: [network_cluster]
     restart: on-failure
-    volumes:
-      - nfs_nexus_data:/nexus-data
+    environment:
+      ENV_DOCKER_REGISTRY_HOST: registry
+      ENV_DOCKER_REGISTRY_PORT: 5000
+      TZ: ${TZ}    
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.nexus.rule=Host(`nexus.${DOMAIN_SWARM}`)"
-        - "traefik.http.routers.nexus.entrypoints=websecure"
-        - "traefik.http.routers.nexus.service=nexus"
-        - "traefik.http.routers.nexus.middlewares=noauth-chain@file"
-        - "traefik.http.services.nexus.loadbalancer.server.port=8081"
+        - "traefik.http.routers.dockerregistryfrontend.rule=Host(`dockerregistryfrontend.${DOMAIN_SWARM}`)"
+        - "traefik.http.routers.dockerregistryfrontend.entrypoints=websecure"
+        - "traefik.http.routers.dockerregistryfrontend.service=dockerregistryfrontend"
+        - "traefik.http.routers.dockerregistryfrontend.middlewares=noauth-chain@file"
+        - "traefik.http.services.dockerregistryfrontend.loadbalancer.server.port=80"
         - homepage.group=Storage
-        - homepage.name=Nexus
+        - homepage.name=Docker Registry Frontend
         - homepage.icon=docker.png
-        - homepage.href=https://nexus.${DOMAIN_SWARM}:4/
+        - homepage.href=https://dockerregistryfrontend.${DOMAIN_SWARM}:4/
         - homepage.description=Docker仓库管理
-        - homepage.siteMonitor=http://nexus:8081
+        - homepage.siteMonitor=http://dockerregistryfrontend:80
         - homepage.weight=5
       mode: replicated
       replicas: 1
@@ -264,9 +266,4 @@ volumes:
     driver: local
     driver_opts:
       <<: *common-keys-volume
-      device: :${NFS_DEVICE}/storage/dockerregistry-ui
-  nfs_nexus_data:
-    driver: local
-    driver_opts:
-      <<: *common-keys-volume
-      device: :${NFS_DEVICE}/storage/nexus/data  
+      device: :${NFS_DEVICE}/storage/dockerregistry-ui 
