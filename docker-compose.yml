@@ -120,9 +120,9 @@ services:
       REGISTRY_URL: "https://registry.${DOMAIN_SWARM}:4"
       DELETE_IMAGES: "true"
       REGISTRY_TITLE: "Swarm Registry"
-      SINGLE_REGISTRY: "true"
+      SINGLE_REGISTRY: "false"
       TAGLIST_ORDER: "alpha-asc;num-desc"
-      NGINX_PROXY_PASS_URL: "https://registry.${DOMAIN_SWARM}:4"
+      NGINX_PROXY_PASS_URL: "http://registry:5000"
       TZ: ${TZ}
     # volumes:
       # Portainer Stack生成的容器环境变量有问题，无法正确更新90-docker-registry-ui.sh
