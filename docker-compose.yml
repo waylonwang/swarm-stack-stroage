@@ -117,6 +117,7 @@ services:
     networks: [network_cluster]
     restart: on-failure
     environment:
+      REGISTRY_URL: "https://registry.${DOMAIN_SWARM}:4"
       DELETE_IMAGES: "true"
       REGISTRY_TITLE: "Swarm Registry"
       SINGLE_REGISTRY: "true"
