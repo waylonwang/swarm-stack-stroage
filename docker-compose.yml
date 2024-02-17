@@ -59,7 +59,7 @@ services:
         - "traefik.http.routers.registry.rule=Host(`registry.${DOMAIN_SWARM}`)"
         - "traefik.http.routers.registry.entrypoints=websecure"
         - "traefik.http.routers.registry.service=registry"
-        - "traefik.http.routers.registry.middlewares=noauth-chain@file,cors-headers@file" # registryui访问需要CORS标头
+        - "traefik.http.routers.registry.middlewares=cors-headers@file,noauth-chain@file" # registryui访问需要CORS标头
         - "traefik.http.services.registry.loadbalancer.server.port=5000"
         - homepage.group=Storage
         - homepage.name=Docker Registry
@@ -117,7 +117,7 @@ services:
     networks: [network_cluster]
     restart: on-failure
     environment:
-      REGISTRY_URL: "https://registry:5000"
+      REGISTRY_URL: "https://registry.${DOMAIN_SWARM}:4"
       DELETE_IMAGES: "true"
       REGISTRY_TITLE: "Swarm Registry"
       SINGLE_REGISTRY: "true"
