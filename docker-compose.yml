@@ -186,6 +186,7 @@ services:
       ENV_DOCKER_REGISTRY_PORT: 4
       ENV_DEFAULT_REPOSITORIES_PER_PAGE: 100
       ENV_DEFAULT_TAGS_PER_PAGE: 100
+      ENV_USE_SSL: yes
       TZ: ${TZ}    
     deploy:
       labels:
