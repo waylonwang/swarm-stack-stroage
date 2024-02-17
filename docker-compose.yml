@@ -52,7 +52,8 @@ services:
       REGISTRY_PROXY_PASSWORD: ${REGISTRY_PROXY_PASSWORD}
       TZ: ${TZ}
     volumes:
-      - nfs_registry:/var/lib/registry
+      - nfs_registry_conf:/etc/docker/registry
+      - nfs_registry_data:/var/lib/registry
     deploy:
       labels:
         - "traefik.enable=true"
@@ -66,7 +67,7 @@ services:
         - homepage.icon=docker.png
         - homepage.description=Docker仓库
         - homepage.ping=registry
-        - homepage.weight=3   
+        - homepage.weight=10 
       mode: replicated
       replicas: 1
       placement:
@@ -103,7 +104,7 @@ services:
         - homepage.href=https://registryadmin.${DOMAIN_SWARM}:4/
         - homepage.description=Docker仓库管理
         - homepage.siteMonitor=http://registryadmin:8080
-        - homepage.weight=4
+        - homepage.weight=11
       mode: replicated
       replicas: 1
       placement:
@@ -140,9 +141,9 @@ services:
         - homepage.name=Docker Registry UI
         - homepage.icon=docker.png
         - homepage.href=https://registryui.${DOMAIN_SWARM}:4/
-        - homepage.description=Docker仓库管理
+        - homepage.description=Docker仓库UI
         - homepage.siteMonitor=http://registryui:80
-        - homepage.weight=5        
+        - homepage.weight=12       
       mode: replicated
       replicas: 1
       placement:
@@ -151,41 +152,42 @@ services:
           - node.labels.storage == true
 
   # Docker私有库UI
-  dockerregistryui:
-    image: descartesresearch/dockerregistryui
-    networks: [network_cluster]
-    restart: on-failure
-    environment:
-      REGISTRY_HOST: registry:5000
-      REGISTRY_PROTOCOL: http
-      # REGISTRY_URL: "https://registry:5000"
-      # IGNORE_INSECURE_HTTPS: True
-      TZ: ${TZ}
-    volumes:
-      - nfs_dockerregistryui:/data
-    deploy:
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.dockerregistryui.rule=Host(`dockerregistryui.${DOMAIN_SWARM}`)"
-        - "traefik.http.routers.dockerregistryui.entrypoints=websecure"
-        - "traefik.http.routers.dockerregistryui.service=dockerregistryui"
-        - "traefik.http.routers.dockerregistryui.middlewares=auth-chain@file"
-        - "traefik.http.services.dockerregistryui.loadbalancer.server.port=8080"
-        - homepage.group=Storage
-        - homepage.name=Docker Registry UI
-        - homepage.icon=docker.png
-        - homepage.href=https://dockerregistryui.${DOMAIN_SWARM}:4/
-        - homepage.description=Docker仓库管理
-        - homepage.siteMonitor=http://dockerregistryui:8080
-        - homepage.weight=5
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.type == vm
-          - node.labels.storage == true          
+  # dockerregistryui:
+  #   image: descartesresearch/dockerregistryui
+  #   networks: [network_cluster]
+  #   restart: on-failure
+  #   environment:
+  #     REGISTRY_HOST: registry:5000
+  #     REGISTRY_PROTOCOL: http
+  #     # REGISTRY_URL: "https://registry:5000"
+  #     # IGNORE_INSECURE_HTTPS: True
+  #     TZ: ${TZ}
+  #   volumes:
+  #     - nfs_dockerregistryui:/data
+  #   deploy:
+  #     labels:
+  #       - "traefik.enable=true"
+  #       - "traefik.http.routers.dockerregistryui.rule=Host(`dockerregistryui.${DOMAIN_SWARM}`)"
+  #       - "traefik.http.routers.dockerregistryui.entrypoints=websecure"
+  #       - "traefik.http.routers.dockerregistryui.service=dockerregistryui"
+  #       - "traefik.http.routers.dockerregistryui.middlewares=auth-chain@file"
+  #       - "traefik.http.services.dockerregistryui.loadbalancer.server.port=8080"
+  #       - homepage.group=Storage
+  #       - homepage.name=Docker Registry UI
+  #       - homepage.icon=docker.png
+  #       - homepage.href=https://dockerregistryui.${DOMAIN_SWARM}:4/
+  #       - homepage.description=Docker仓库管理
+  #       - homepage.siteMonitor=http://dockerregistryui:8080
+  #       - homepage.weight=14
+  #     mode: replicated
+  #     replicas: 1
+  #     placement:
+  #       constraints:
+  #         - node.labels.type == vm
+  #         - node.labels.storage == true          
 
-  dockerregistryfrontend:
+  # Docker私有库前端
+  registryfrontend:
     image: konradkleine/docker-registry-frontend:v2
     networks: [network_cluster]
     restart: on-failure
@@ -201,18 +203,18 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.dockerregistryfrontend.rule=Host(`dockerregistryfrontend.${DOMAIN_SWARM}`)"
-        - "traefik.http.routers.dockerregistryfrontend.entrypoints=websecure"
-        - "traefik.http.routers.dockerregistryfrontend.service=dockerregistryfrontend"
-        - "traefik.http.routers.dockerregistryfrontend.middlewares=noauth-chain@file"
-        - "traefik.http.services.dockerregistryfrontend.loadbalancer.server.port=80"
+        - "traefik.http.routers.registryfrontend.rule=Host(`registryfrontend.${DOMAIN_SWARM}`)"
+        - "traefik.http.routers.registryfrontend.entrypoints=websecure"
+        - "traefik.http.routers.registryfrontend.service=registryfrontend"
+        - "traefik.http.routers.registryfrontend.middlewares=noauth-chain@file"
+        - "traefik.http.services.registryfrontend.loadbalancer.server.port=80"
         - homepage.group=Storage
         - homepage.name=Docker Registry Frontend
         - homepage.icon=docker.png
-        - homepage.href=https://dockerregistryfrontend.${DOMAIN_SWARM}:4/
-        - homepage.description=Docker仓库管理
-        - homepage.siteMonitor=http://dockerregistryfrontend:80
-        - homepage.weight=5
+        - homepage.href=https://registryfrontend.${DOMAIN_SWARM}:4/
+        - homepage.description=Docker仓库前端
+        - homepage.siteMonitor=http://registryfrontend:80
+        - homepage.weight=13
       mode: replicated
       replicas: 1
       placement:
@@ -238,7 +240,7 @@ services:
         - homepage.icon=google-compute-engine.png
         - homepage.description=Cookie Cloud
         - homepage.ping=cookiecloud
-        - homepage.weight=10        
+        - homepage.weight=20        
       mode: replicated
       replicas: 1
       placement:
@@ -260,11 +262,16 @@ volumes:
     driver_opts:
       <<: *common-keys-volume
       device: :${NFS_DEVICE}/storage/vaultwarden/data
-  nfs_registry:
+  nfs_registry_conf:
     driver: local
     driver_opts:
       <<: *common-keys-volume
-      device: :${NFS_DEVICE}/storage/registry
+      device: :${NFS_DEVICE}/storage/registry/conf
+  nfs_registry_data:
+    driver: local
+    driver_opts:
+      <<: *common-keys-volume
+      device: :${NFS_DEVICE}/storage/registry/data
   nfs_registryadmin:
     driver: local
     driver_opts:
@@ -275,8 +282,3 @@ volumes:
     driver_opts:
       <<: *common-keys-volume
       device: :${NFS_DEVICE}/storage/docker-registry-ui/sh
-  nfs_dockerregistryui:
-    driver: local
-    driver_opts:
-      <<: *common-keys-volume
-      device: :${NFS_DEVICE}/storage/dockerregistry-ui 
