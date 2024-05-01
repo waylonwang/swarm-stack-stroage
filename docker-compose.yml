@@ -93,7 +93,7 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.registryadmin.rule=Host(`registryadmin.${DOMAIN_SWARM},`registryadmin.${DOMAIN_EMERGENCY}`)"
+        - "traefik.http.routers.registryadmin.rule=Host(`registryadmin.${DOMAIN_SWARM}`,`registryadmin.${DOMAIN_EMERGENCY}`)"
         - "traefik.http.routers.registryadmin.entrypoints=websecure"
         - "traefik.http.routers.registryadmin.service=registryadmin"
         - "traefik.http.routers.registryadmin.middlewares=auth-chain@file"
