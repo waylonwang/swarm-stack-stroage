@@ -47,7 +47,8 @@ services:
       # 内网直接访问端口
       - 5000:5000
     environment:
-      # REGISTRY_PROXY_REMOTEURL: ${REGISTRY_PROXY_REMOTEURL}
+      # 启用mirror模式，但会导致无法push，仅standalone模式可以push，如需push须临时注释REGISTRY_PROXY_REMOTEURL后部署
+      REGISTRY_PROXY_REMOTEURL: ${REGISTRY_PROXY_REMOTEURL}
       REGISTRY_PROXY_USERNAME: ${REGISTRY_PROXY_USERNAME}
       REGISTRY_PROXY_PASSWORD: ${REGISTRY_PROXY_PASSWORD}
       TZ: ${TZ}
