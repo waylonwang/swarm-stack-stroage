@@ -20,12 +20,12 @@ services:
         - "traefik.http.routers.vaultwarden.rule=Host(`vaultwarden.${DOMAIN_SWARM}`,`vaultwarden.${DOMAIN_EMERGENCY}`)"
         - "traefik.http.routers.vaultwarden.entrypoints=websecure"
         - "traefik.http.routers.vaultwarden.service=vaultwarden"
-        - "traefik.http.routers.vaultwarden.middlewares=noauth-chain@file"
+        - "traefik.http.routers.vaultwarden.middlewares=normal-chain@file"
         - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
         - homepage.group=Storage
         - homepage.name=Vault Admin
         - homepage.icon=vaultwarden-light.png #bitwarden.png
-        - homepage.href=https://vaultwarden.${DOMAIN_SWARM}:4/
+        - homepage.href=https://vaultwarden.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
         - homepage.description=密码管理器
         - homepage.siteMonitor=http://vaultwarden
         - homepage.weight=1
@@ -61,7 +61,7 @@ services:
         - "traefik.http.routers.registry.rule=Host(`registry.${DOMAIN_SWARM}`,`registry.${DOMAIN_EMERGENCY}`)"
         - "traefik.http.routers.registry.entrypoints=websecure"
         - "traefik.http.routers.registry.service=registry"
-        - "traefik.http.routers.registry.middlewares=cors-headers@file,noauth-chain@file" # registryui访问需要CORS标头
+        - "traefik.http.routers.registry.middlewares=cors-headers@file,normal-chain@file" # registryui访问需要CORS标头
         - "traefik.http.services.registry.loadbalancer.server.port=5000"
         - homepage.group=Storage
         - homepage.name=Docker Registry
@@ -97,12 +97,12 @@ services:
         - "traefik.http.routers.registryadmin.rule=Host(`registryadmin.${DOMAIN_SWARM}`,`registryadmin.${DOMAIN_EMERGENCY}`)"
         - "traefik.http.routers.registryadmin.entrypoints=websecure"
         - "traefik.http.routers.registryadmin.service=registryadmin"
-        - "traefik.http.routers.registryadmin.middlewares=auth-chain@file"
+        - "traefik.http.routers.registryadmin.middlewares=auth,normal-chain@file"
         - "traefik.http.services.registryadmin.loadbalancer.server.port=8080"
         - homepage.group=Storage
         - homepage.name=Docker Registry Admin
         - homepage.icon=docker.png
-        - homepage.href=https://registryadmin.${DOMAIN_SWARM}:4/
+        - homepage.href=https://registryadmin.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
         - homepage.description=Docker仓库管理
         - homepage.siteMonitor=http://registryadmin:8080
         - homepage.weight=11
@@ -119,7 +119,7 @@ services:
     networks: [network_cluster]
     restart: on-failure
     environment:
-      REGISTRY_URL: "https://registry.${DOMAIN_SWARM}:4"
+      REGISTRY_URL: "https://registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}"
       DELETE_IMAGES: "true"
       REGISTRY_TITLE: "Swarm Registry"
       SINGLE_REGISTRY: "false"
@@ -136,12 +136,12 @@ services:
         - "traefik.http.routers.registryui.rule=Host(`registryui.${DOMAIN_SWARM}`,`registryui.${DOMAIN_EMERGENCY}`)"
         - "traefik.http.routers.registryui.entrypoints=websecure"
         - "traefik.http.routers.registryui.service=registryui"
-        - "traefik.http.routers.registryui.middlewares=auth-chain@file"
+        - "traefik.http.routers.registryui.middlewares=auth,normal-chain@file"
         - "traefik.http.services.registryui.loadbalancer.server.port=80"
         - homepage.group=Storage
         - homepage.name=Docker Registry UI
         - homepage.icon=docker.png
-        - homepage.href=https://registryui.${DOMAIN_SWARM}:4/
+        - homepage.href=https://registryui.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
         - homepage.description=Docker仓库UI
         - homepage.siteMonitor=http://registryui:80
         - homepage.weight=12       
@@ -171,12 +171,12 @@ services:
   #       - "traefik.http.routers.dockerregistryui.rule=Host(`dockerregistryui.${DOMAIN_SWARM}`)"
   #       - "traefik.http.routers.dockerregistryui.entrypoints=websecure"
   #       - "traefik.http.routers.dockerregistryui.service=dockerregistryui"
-  #       - "traefik.http.routers.dockerregistryui.middlewares=auth-chain@file"
+  #       - "traefik.http.routers.dockerregistryui.middlewares=auth,normal-chain@file"
   #       - "traefik.http.services.dockerregistryui.loadbalancer.server.port=8080"
   #       - homepage.group=Storage
   #       - homepage.name=Docker Registry UI
   #       - homepage.icon=docker.png
-  #       - homepage.href=https://dockerregistryui.${DOMAIN_SWARM}:4/
+  #       - homepage.href=https://dockerregistryui.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
   #       - homepage.description=Docker仓库管理
   #       - homepage.siteMonitor=http://dockerregistryui:8080
   #       - homepage.weight=14
@@ -207,12 +207,12 @@ services:
         - "traefik.http.routers.registryfrontend.rule=Host(`registryfrontend.${DOMAIN_SWARM}`,`registryfrontend.${DOMAIN_EMERGENCY}`)"
         - "traefik.http.routers.registryfrontend.entrypoints=websecure"
         - "traefik.http.routers.registryfrontend.service=registryfrontend"
-        - "traefik.http.routers.registryfrontend.middlewares=noauth-chain@file"
+        - "traefik.http.routers.registryfrontend.middlewares=auth,normal-chain@file"
         - "traefik.http.services.registryfrontend.loadbalancer.server.port=80"
         - homepage.group=Storage
         - homepage.name=Docker Registry Frontend
         - homepage.icon=docker.png
-        - homepage.href=https://registryfrontend.${DOMAIN_SWARM}:4/repositories
+        - homepage.href=https://registryfrontend.${DOMAIN_SWARM}:${EXTERNAL_PORT}/repositories
         - homepage.description=Docker仓库前端
         - homepage.siteMonitor=http://registryfrontend:80
         - homepage.weight=13
@@ -234,7 +234,7 @@ services:
         - "traefik.http.routers.cookiecloud.rule=Host(`cookiecloud.${DOMAIN_SWARM}`,`cookiecloud.${DOMAIN_EMERGENCY}`)"
         - "traefik.http.routers.cookiecloud.entrypoints=websecure"
         - "traefik.http.routers.cookiecloud.service=cookiecloud"
-        - "traefik.http.routers.cookiecloud.middlewares=noauth-chain@file"
+        - "traefik.http.routers.cookiecloud.middlewares=normal-chain@file"
         - "traefik.http.services.cookiecloud.loadbalancer.server.port=8088"
         - homepage.group=Storage
         - homepage.name=Cookie Cloud
