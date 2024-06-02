@@ -79,7 +79,6 @@ services:
       driver: fluentd
       options:
         tag: docker.storage.registry
-        fluentd-address: "fluentd:24224"
         fluentd-async-connect: "true"          
 
   # Docker私有库Manager
