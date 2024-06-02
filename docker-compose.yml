@@ -79,7 +79,7 @@ services:
       driver: fluentd
       options:
         tag: swarm.registry
-        fluentd-address: "localhost:24224"
+        fluentd-address: "fluentd:24224"
         fluentd-async-connect: "true"          
 
   # Docker私有库Manager
