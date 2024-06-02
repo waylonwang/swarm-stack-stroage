@@ -75,6 +75,11 @@ services:
         constraints:
           - node.labels.type == vm
           - node.labels.storage == true
+    logging:
+      driver: fluentd
+      options:
+        tag: swarm.registry
+        fluentd-async-connect: "true"          
 
   # Docker私有库Manager
   registryadmin:
