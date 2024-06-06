@@ -34,12 +34,12 @@ services:
       - nfs_vaultwarden:/data
     deploy:
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.vaultwarden.rule=Host(`vaultwarden.${DOMAIN_SWARM}`,`vaultwarden.${DOMAIN_EMERGENCY}`)"
-        - "traefik.http.routers.vaultwarden.entrypoints=websecure"
-        - "traefik.http.routers.vaultwarden.service=vaultwarden"
-        - "traefik.http.routers.vaultwarden.middlewares=normal-chain@file"
-        - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
+        - traefik.enable=true
+        - traefik.http.routers.vaultwarden.rule=Host(`vaultwarden.${DOMAIN_SWARM}`,`vaultwarden.${DOMAIN_EMERGENCY}`)
+        - traefik.http.routers.vaultwarden.entrypoints=websecure
+        - traefik.http.routers.vaultwarden.service=vaultwarden
+        - traefik.http.routers.vaultwarden.middlewares=normal-chain@file
+        - traefik.http.services.vaultwarden.loadbalancer.server.port=80
         - homepage.group=Storage
         - homepage.name=Vault Admin
         - homepage.icon=vaultwarden-light.png #bitwarden.png
@@ -53,7 +53,7 @@ services:
       driver: fluentd
       options:
         tag: docker.storage.vaultwarden
-        fluentd-async-connect: "true"   
+        fluentd-async-connect: "true"
 
   # ------------------------------------------------------------
   # Docker私有镜像库
@@ -75,24 +75,24 @@ services:
       - nfs_registry_data:/var/lib/registry
     deploy:
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.registry.rule=Host(`registry.${DOMAIN_SWARM}`,`registry.${DOMAIN_EMERGENCY}`)"
-        - "traefik.http.routers.registry.entrypoints=websecure"
-        - "traefik.http.routers.registry.service=registry"
-        - "traefik.http.routers.registry.middlewares=cors-headers@file,normal-chain@file" # registryui访问需要CORS标头
-        - "traefik.http.services.registry.loadbalancer.server.port=5000"
+        - traefik.enable=true
+        - traefik.http.routers.registry.rule=Host(`registry.${DOMAIN_SWARM}`,`registry.${DOMAIN_EMERGENCY}`)
+        - traefik.http.routers.registry.entrypoints=websecure
+        - traefik.http.routers.registry.service=registry
+        - traefik.http.routers.registry.middlewares=cors-headers@file,normal-chain@file # registryui访问需要CORS标头
+        - traefik.http.services.registry.loadbalancer.server.port=5000
         - homepage.group=Storage
         - homepage.name=Docker Registry
         - homepage.icon=docker.png
         - homepage.description=Docker仓库
         - homepage.ping=registry
-        - homepage.weight=10 
+        - homepage.weight=10
       <<: [*deploy-common-ref,*placement-default-ref]
     logging:
       driver: fluentd
       options:
         tag: docker.storage.registry
-        fluentd-async-connect: "true"          
+        fluentd-async-connect: "true"
 
   # ------------------------------------------------------------
   # Docker私有库Manager
@@ -112,12 +112,12 @@ services:
       - nfs_registryadmin:/app/conf
     deploy:
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.registryadmin.rule=Host(`registryadmin.${DOMAIN_SWARM}`,`registryadmin.${DOMAIN_EMERGENCY}`)"
-        - "traefik.http.routers.registryadmin.entrypoints=websecure"
-        - "traefik.http.routers.registryadmin.service=registryadmin"
-        - "traefik.http.routers.registryadmin.middlewares=auth,normal-chain@file"
-        - "traefik.http.services.registryadmin.loadbalancer.server.port=8080"
+        - traefik.enable=true
+        - traefik.http.routers.registryadmin.rule=Host(`registryadmin.${DOMAIN_SWARM}`,`registryadmin.${DOMAIN_EMERGENCY}`)
+        - traefik.http.routers.registryadmin.entrypoints=websecure
+        - traefik.http.routers.registryadmin.service=registryadmin
+        - traefik.http.routers.registryadmin.middlewares=auth,normal-chain@file
+        - traefik.http.services.registryadmin.loadbalancer.server.port=8080
         - homepage.group=Storage
         - homepage.name=Docker Registry Admin
         - homepage.icon=docker.png
@@ -125,12 +125,12 @@ services:
         - homepage.description=Docker仓库管理
         - homepage.siteMonitor=http://registryadmin:8080
         - homepage.weight=11
-      <<: [*deploy-common-ref,*placement-default-ref] 
+      <<: [*deploy-common-ref,*placement-default-ref]
     logging:
       driver: fluentd
       options:
         tag: docker.storage.registryadmin
-        fluentd-async-connect: "true"   
+        fluentd-async-connect: "true"
 
   # ------------------------------------------------------------
   # Docker私有库UI
@@ -139,12 +139,12 @@ services:
     image: joxit/docker-registry-ui:latest
     <<: *service-common-ref
     environment:
-      REGISTRY_URL: "https://registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}"
+      REGISTRY_URL: https://registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}
       DELETE_IMAGES: "true"
-      REGISTRY_TITLE: "Swarm Registry"
+      REGISTRY_TITLE: Swarm Registry
       SINGLE_REGISTRY: "false"
-      TAGLIST_ORDER: "alpha-asc;num-desc"
-      NGINX_PROXY_PASS_URL: "http://registry:5000"
+      TAGLIST_ORDER: alpha-asc;num-desc
+      NGINX_PROXY_PASS_URL: http://registry:5000
       TZ: ${TZ}
     # volumes:
       # Portainer Stack生成的容器环境变量有问题，无法正确更新90-docker-registry-ui.sh
@@ -152,60 +152,25 @@ services:
       # - nfs_registryui:/docker-entrypoint.d
     deploy:
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.registryui.rule=Host(`registryui.${DOMAIN_SWARM}`,`registryui.${DOMAIN_EMERGENCY}`)"
-        - "traefik.http.routers.registryui.entrypoints=websecure"
-        - "traefik.http.routers.registryui.service=registryui"
-        - "traefik.http.routers.registryui.middlewares=auth,normal-chain@file"
-        - "traefik.http.services.registryui.loadbalancer.server.port=80"
+        - traefik.enable=true
+        - traefik.http.routers.registryui.rule=Host(`registryui.${DOMAIN_SWARM}`,`registryui.${DOMAIN_EMERGENCY}`)
+        - traefik.http.routers.registryui.entrypoints=websecure
+        - traefik.http.routers.registryui.service=registryui
+        - traefik.http.routers.registryui.middlewares=auth,normal-chain@file
+        - traefik.http.services.registryui.loadbalancer.server.port=80
         - homepage.group=Storage
         - homepage.name=Docker Registry UI
         - homepage.icon=docker.png
         - homepage.href=https://registryui.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
         - homepage.description=Docker仓库UI
         - homepage.siteMonitor=http://registryui:80
-        - homepage.weight=12       
+        - homepage.weight=12
       <<: [*deploy-common-ref,*placement-default-ref]
     logging:
       driver: fluentd
       options:
         tag: docker.storage.registryui
-        fluentd-async-connect: "true"   
-
-  # Docker私有库UI
-  # dockerregistryui:
-  #   image: descartesresearch/dockerregistryui
-  #   networks: [network_cluster]
-  #   restart: on-failure
-  #   environment:
-  #     REGISTRY_HOST: registry:5000
-  #     REGISTRY_PROTOCOL: http
-  #     # REGISTRY_URL: "https://registry:5000"
-  #     # IGNORE_INSECURE_HTTPS: True
-  #     TZ: ${TZ}
-  #   volumes:
-  #     - nfs_dockerregistryui:/data
-  #   deploy:
-  #     labels:
-  #       - "traefik.enable=true"
-  #       - "traefik.http.routers.dockerregistryui.rule=Host(`dockerregistryui.${DOMAIN_SWARM}`)"
-  #       - "traefik.http.routers.dockerregistryui.entrypoints=websecure"
-  #       - "traefik.http.routers.dockerregistryui.service=dockerregistryui"
-  #       - "traefik.http.routers.dockerregistryui.middlewares=auth,normal-chain@file"
-  #       - "traefik.http.services.dockerregistryui.loadbalancer.server.port=8080"
-  #       - homepage.group=Storage
-  #       - homepage.name=Docker Registry UI
-  #       - homepage.icon=docker.png
-  #       - homepage.href=https://dockerregistryui.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
-  #       - homepage.description=Docker仓库管理
-  #       - homepage.siteMonitor=http://dockerregistryui:8080
-  #       - homepage.weight=14
-  #     mode: replicated
-  #     replicas: 1
-  #     placement:
-  #       constraints:
-  #         - node.labels.type == vm
-  #         - node.labels.storage == true          
+        fluentd-async-connect: "true"
 
   # ------------------------------------------------------------
   # Docker私有库前端
@@ -221,15 +186,15 @@ services:
       # ENV_USE_SSL: yes
       ENV_DEFAULT_REPOSITORIES_PER_PAGE: 100
       ENV_DEFAULT_TAGS_PER_PAGE: 100
-      TZ: ${TZ}    
+      TZ: ${TZ}
     deploy:
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.registryfrontend.rule=Host(`registryfrontend.${DOMAIN_SWARM}`,`registryfrontend.${DOMAIN_EMERGENCY}`)"
-        - "traefik.http.routers.registryfrontend.entrypoints=websecure"
-        - "traefik.http.routers.registryfrontend.service=registryfrontend"
-        - "traefik.http.routers.registryfrontend.middlewares=auth,normal-chain@file"
-        - "traefik.http.services.registryfrontend.loadbalancer.server.port=80"
+        - traefik.enable=true
+        - traefik.http.routers.registryfrontend.rule=Host(`registryfrontend.${DOMAIN_SWARM}`,`registryfrontend.${DOMAIN_EMERGENCY}`)
+        - traefik.http.routers.registryfrontend.entrypoints=websecure
+        - traefik.http.routers.registryfrontend.service=registryfrontend
+        - traefik.http.routers.registryfrontend.middlewares=auth,normal-chain@file
+        - traefik.http.services.registryfrontend.loadbalancer.server.port=80
         - homepage.group=Storage
         - homepage.name=Docker Registry Frontend
         - homepage.icon=docker.png
@@ -242,34 +207,34 @@ services:
       driver: fluentd
       options:
         tag: docker.storage.registryfrontend
-        fluentd-async-connect: "true"   
+        fluentd-async-connect: "true"
 
   # ------------------------------------------------------------
-  # CookieCloud
+  # CookieCloud 同步库
   # ------------------------------------------------------------
   cookiecloud:
     image: easychen/cookiecloud:latest
     <<: *service-common-ref
     deploy:
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.cookiecloud.rule=Host(`cookiecloud.${DOMAIN_SWARM}`,`cookiecloud.${DOMAIN_EMERGENCY}`)"
-        - "traefik.http.routers.cookiecloud.entrypoints=websecure"
-        - "traefik.http.routers.cookiecloud.service=cookiecloud"
-        - "traefik.http.routers.cookiecloud.middlewares=normal-chain@file"
-        - "traefik.http.services.cookiecloud.loadbalancer.server.port=8088"
+        - traefik.enable=true
+        - traefik.http.routers.cookiecloud.rule=Host(`cookiecloud.${DOMAIN_SWARM}`,`cookiecloud.${DOMAIN_EMERGENCY}`)
+        - traefik.http.routers.cookiecloud.entrypoints=websecure
+        - traefik.http.routers.cookiecloud.service=cookiecloud
+        - traefik.http.routers.cookiecloud.middlewares=normal-chain@file
+        - traefik.http.services.cookiecloud.loadbalancer.server.port=8088
         - homepage.group=Storage
         - homepage.name=Cookie Cloud
         - homepage.icon=google-compute-engine.png
         - homepage.description=Cookie Cloud
         - homepage.ping=cookiecloud
-        - homepage.weight=20        
+        - homepage.weight=20
       <<: [*deploy-common-ref,*placement-default-ref]
     logging:
       driver: fluentd
       options:
         tag: docker.storage.cookiecloud
-        fluentd-async-connect: "true"   
+        fluentd-async-connect: "true"
 
 networks:
   network_cluster:
