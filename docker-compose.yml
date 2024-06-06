@@ -1,12 +1,30 @@
+---
 # Update Time: 2023-04-05 17:42
 version: "3.4"
 
-services:
-  # Bitwarden保险库
-  vaultwarden:
-    image: vaultwarden/server:latest
+x-defines:
+  service-common: &service-common-ref
     networks: [network_cluster]
     restart: on-failure
+  deploy-common: &deploy-common-ref
+    mode: replicated
+    replicas: 1
+  placement-default: &placement-default-ref
+    placement:
+      constraints:
+        - node.labels.type == vm
+        - node.labels.storage == true
+  driver-common: &driver-common-ref
+    type: nfs
+    o: addr=${NFS_SERVER},rw,nfsvers=4
+
+services:
+  # ------------------------------------------------------------
+  # Bitwarden保险库
+  # ------------------------------------------------------------
+  vaultwarden:
+    image: vaultwarden/server:latest
+    <<: *service-common-ref
     environment:
       SIGNUPS_ALLOWED: "false"
       INVITATIONS_ALLOWED: "false"
@@ -29,20 +47,20 @@ services:
         - homepage.description=密码管理器
         - homepage.siteMonitor=http://vaultwarden
         - homepage.weight=1
-      mode: replicated
+      <<: [*deploy-common-ref,*placement-default-ref]
       replicas: 2
-      placement:
-        constraints:
-          - node.labels.type == vm
-          # - node.labels.type == nas
-          - node.labels.storage == true
-          # - node.labels.nas == primary           
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.storage.vaultwarden
+        fluentd-async-connect: "true"   
 
-  # Docker私有库
+  # ------------------------------------------------------------
+  # Docker私有镜像库
+  # ------------------------------------------------------------
   registry:
     image: registry
-    networks: [network_cluster]
-    restart: on-failure
+    <<: *service-common-ref
     ports:
       # 内网直接访问端口
       - 5000:5000
@@ -69,24 +87,20 @@ services:
         - homepage.description=Docker仓库
         - homepage.ping=registry
         - homepage.weight=10 
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.type == vm
-          - node.labels.storage == true
+      <<: [*deploy-common-ref,*placement-default-ref]
     logging:
       driver: fluentd
       options:
         tag: docker.storage.registry
         fluentd-async-connect: "true"          
 
+  # ------------------------------------------------------------
   # Docker私有库Manager
+  # ------------------------------------------------------------
   registryadmin:
     image: snagles/docker-registry-manager:latest
     command: ["/app/app", "-r", "/app/conf/registries.yml"]
-    networks: [network_cluster]
-    restart: on-failure
+    <<: *service-common-ref
     environment:
       MANAGER_PORT: 8080
       # NFS挂载卷不支持文件映射，只支持目录映射
@@ -111,18 +125,19 @@ services:
         - homepage.description=Docker仓库管理
         - homepage.siteMonitor=http://registryadmin:8080
         - homepage.weight=11
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.type == vm
-          - node.labels.storage == true
+      <<: [*deploy-common-ref,*placement-default-ref] 
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.storage.registryadmin
+        fluentd-async-connect: "true"   
 
+  # ------------------------------------------------------------
   # Docker私有库UI
+  # ------------------------------------------------------------
   registryui:
     image: joxit/docker-registry-ui:latest
-    networks: [network_cluster]
-    restart: on-failure
+    <<: *service-common-ref
     environment:
       REGISTRY_URL: "https://registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}"
       DELETE_IMAGES: "true"
@@ -150,12 +165,12 @@ services:
         - homepage.description=Docker仓库UI
         - homepage.siteMonitor=http://registryui:80
         - homepage.weight=12       
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.type == vm
-          - node.labels.storage == true
+      <<: [*deploy-common-ref,*placement-default-ref]
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.storage.registryui
+        fluentd-async-connect: "true"   
 
   # Docker私有库UI
   # dockerregistryui:
@@ -192,11 +207,12 @@ services:
   #         - node.labels.type == vm
   #         - node.labels.storage == true          
 
+  # ------------------------------------------------------------
   # Docker私有库前端
+  # ------------------------------------------------------------
   registryfrontend:
     image: konradkleine/docker-registry-frontend:v2
-    networks: [network_cluster]
-    restart: on-failure
+    <<: *service-common-ref
     environment:
       ENV_DOCKER_REGISTRY_HOST: registry
       ENV_DOCKER_REGISTRY_PORT: 5000
@@ -221,18 +237,19 @@ services:
         - homepage.description=Docker仓库前端
         - homepage.siteMonitor=http://registryfrontend:80
         - homepage.weight=13
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.type == vm
-          - node.labels.storage == true  
+      <<: [*deploy-common-ref,*placement-default-ref]
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.storage.registryfrontend
+        fluentd-async-connect: "true"   
 
+  # ------------------------------------------------------------
   # CookieCloud
+  # ------------------------------------------------------------
   cookiecloud:
     image: easychen/cookiecloud:latest
-    networks: [network_cluster]
-    restart: on-failure
+    <<: *service-common-ref
     deploy:
       labels:
         - "traefik.enable=true"
@@ -247,44 +264,41 @@ services:
         - homepage.description=Cookie Cloud
         - homepage.ping=cookiecloud
         - homepage.weight=20        
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.type == vm
-          - node.labels.storage == true      
+      <<: [*deploy-common-ref,*placement-default-ref]
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.storage.cookiecloud
+        fluentd-async-connect: "true"   
 
 networks:
   network_cluster:
     external: true
 
-x-common-keys-volume: &common-keys-volume
-  type: nfs
-  o: addr=${NFS_SERVER},rw,nfsvers=4
-
 volumes:
   nfs_vaultwarden:
     driver: local
     driver_opts:
-      <<: *common-keys-volume
+      <<: *driver-common-ref
       device: :${NFS_DEVICE}/storage/vaultwarden/data
   nfs_registry_conf:
     driver: local
     driver_opts:
-      <<: *common-keys-volume
+      <<: *driver-common-ref
       device: :${NFS_DEVICE}/storage/registry/conf
   nfs_registry_data:
     driver: local
     driver_opts:
-      <<: *common-keys-volume
+      <<: *driver-common-ref
       device: :${NFS_DEVICE}/storage/registry/data
   nfs_registryadmin:
     driver: local
     driver_opts:
-      <<: *common-keys-volume
+      <<: *driver-common-ref
       device: :${NFS_DEVICE}/storage/docker-registry-manager/conf
   nfs_registryui:
     driver: local
     driver_opts:
-      <<: *common-keys-volume
+      <<: *driver-common-ref
       device: :${NFS_DEVICE}/storage/docker-registry-ui/sh
+...
