@@ -29,7 +29,7 @@ x-defines:
 
 services:
   # ------------------------------------------------------------
-  # Bitwarden保险库
+  # Bitwarden保管库
   # ------------------------------------------------------------
   vaultwarden:
     <<: *service-common-ref
@@ -53,7 +53,7 @@ services:
         - homepage.name=Vault Admin
         - homepage.icon=vaultwarden-light.png #bitwarden.png
         - homepage.href=https://vaultwarden.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
-        - homepage.description=密码管理器
+        - homepage.description=密码保管库
         - homepage.siteMonitor=http://vaultwarden
         - homepage.weight=1
       <<: [*deploy-common-ref, *placement-default-ref]
@@ -93,8 +93,10 @@ services:
         - homepage.group=Storage
         - homepage.name=Docker Registry
         - homepage.icon=docker.png
-        - homepage.description=Docker仓库
+        - homepage.description=Docker私有镜像库
+        - homepage.href=https://registryadmin.${DOMAIN_SWARM}:${EXTERNAL_PORT}/repositories
         - homepage.ping=registry
+        - homepage.siteMonitor=http://registryfrontend:80
         - homepage.weight=10
       <<: [*deploy-common-ref, *placement-default-ref]
     logging:
@@ -171,7 +173,7 @@ services:
         - homepage.name=Docker Registry UI
         - homepage.icon=docker.png
         - homepage.href=https://registryui.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
-        - homepage.description=Docker仓库UI
+        - homepage.description=Docker私有库UI
         - homepage.siteMonitor=http://registryui:80
         - homepage.weight=12
       <<: [*deploy-common-ref, *placement-default-ref]
@@ -199,18 +201,18 @@ services:
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.http.routers.registryfrontend.rule=Host(`registryfrontend.${DOMAIN_SWARM}`,`registryfrontend.${DOMAIN_EMERGENCY}`)
+        - traefik.http.routers.registryfrontend.rule=Host(`registryadmin.${DOMAIN_SWARM}`,`registryfrontend.${DOMAIN_EMERGENCY}`)
         - traefik.http.routers.registryfrontend.entrypoints=websecure
         - traefik.http.routers.registryfrontend.service=registryfrontend
         - traefik.http.routers.registryfrontend.middlewares=auth,normal-chain@file
         - traefik.http.services.registryfrontend.loadbalancer.server.port=80
-        - homepage.group=Storage
-        - homepage.name=Docker Registry Frontend
-        - homepage.icon=docker.png
-        - homepage.href=https://registryfrontend.${DOMAIN_SWARM}:${EXTERNAL_PORT}/repositories
-        - homepage.description=Docker仓库前端
-        - homepage.siteMonitor=http://registryfrontend:80
-        - homepage.weight=13
+        # - homepage.group=Storage
+        # - homepage.name=Docker Registry Frontend
+        # - homepage.icon=docker.png
+        # - homepage.href=https://registryadmin.${DOMAIN_SWARM}:${EXTERNAL_PORT}/repositories
+        # - homepage.description=Docker仓库前端
+        # - homepage.siteMonitor=http://registryfrontend:80
+        # - homepage.weight=13
       <<: [*deploy-common-ref, *placement-default-ref]
     logging:
       driver: fluentd
@@ -235,7 +237,7 @@ services:
         - homepage.group=Storage
         - homepage.name=Cookie Cloud
         - homepage.icon=google-compute-engine.png
-        - homepage.description=Cookie Cloud
+        - homepage.description=Cookie同步库
         - homepage.ping=cookiecloud
         - homepage.weight=20
       <<: [*deploy-common-ref, *placement-default-ref]
