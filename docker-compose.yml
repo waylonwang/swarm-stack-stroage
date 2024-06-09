@@ -33,7 +33,7 @@ services:
   # ------------------------------------------------------------
   vaultwarden:
     <<: *service-common-ref
-    image: vaultwarden/server:latest
+    image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/vaultwarden/server:1.30.5
     environment:
       <<: *env-common-ref
       SIGNUPS_ALLOWED: "false"
@@ -69,7 +69,7 @@ services:
   # ------------------------------------------------------------
   registry:
     <<: *service-common-ref
-    image: registry
+    image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/library/registry:2.8.3
     ports:
       # 内网直接访问端口
       - 5000:5000
@@ -106,47 +106,47 @@ services:
   # ------------------------------------------------------------
   # Docker私有库Manager
   # ------------------------------------------------------------
-  registryadmin:
-    <<: *service-common-ref
-    image: snagles/docker-registry-manager:latest
-    command: ["/app/app", "-r", "/app/conf/registries.yml"]
-    environment:
-      <<: *env-common-ref
-      MANAGER_PORT: 8080
-      # NFS挂载卷不支持文件映射，只支持目录映射
-      # 通过命令行更改/app/registries.yml的默认位置为/app/conf/registries.yml
-      #- MANAGER_REGISTRIES=/app/conf/registries.yml
-      MANAGER_LOG_LEVEL: warn
-    volumes:
-      - nfs_registryadmin:/app/conf
-    deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.registryadmin.rule=Host(`registryadmin.${DOMAIN_SWARM}`,`registryadmin.${DOMAIN_EMERGENCY}`)
-        - traefik.http.routers.registryadmin.entrypoints=websecure
-        - traefik.http.routers.registryadmin.service=registryadmin
-        - traefik.http.routers.registryadmin.middlewares=auth,normal-chain@file
-        - traefik.http.services.registryadmin.loadbalancer.server.port=8080
-        - homepage.group=Storage
-        - homepage.name=Docker Registry Admin
-        - homepage.icon=docker.png
-        - homepage.href=https://registryadmin.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
-        - homepage.description=Docker仓库管理
-        - homepage.siteMonitor=http://registryadmin:8080
-        - homepage.weight=11
-      <<: [*deploy-common-ref, *placement-default-ref]
-    logging:
-      driver: fluentd
-      options:
-        tag: docker.storage.registryadmin
-        fluentd-async-connect: "true"
+  # registryadmin:
+  #   <<: *service-common-ref
+  #   image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/snagles/docker-registry-manager:latest
+  #   command: ["/app/app", "-r", "/app/conf/registries.yml"]
+  #   environment:
+  #     <<: *env-common-ref
+  #     MANAGER_PORT: 8080
+  #     # NFS挂载卷不支持文件映射，只支持目录映射
+  #     # 通过命令行更改/app/registries.yml的默认位置为/app/conf/registries.yml
+  #     #- MANAGER_REGISTRIES=/app/conf/registries.yml
+  #     MANAGER_LOG_LEVEL: warn
+  #   volumes:
+  #     - nfs_registryadmin:/app/conf
+  #   deploy:
+  #     labels:
+  #       - traefik.enable=true
+  #       - traefik.http.routers.registryadmin.rule=Host(`registryadmin.${DOMAIN_SWARM}`,`registryadmin.${DOMAIN_EMERGENCY}`)
+  #       - traefik.http.routers.registryadmin.entrypoints=websecure
+  #       - traefik.http.routers.registryadmin.service=registryadmin
+  #       - traefik.http.routers.registryadmin.middlewares=auth,normal-chain@file
+  #       - traefik.http.services.registryadmin.loadbalancer.server.port=8080
+  #       - homepage.group=Storage
+  #       - homepage.name=Docker Registry Admin
+  #       - homepage.icon=docker.png
+  #       - homepage.href=https://registryadmin.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
+  #       - homepage.description=Docker仓库管理
+  #       - homepage.siteMonitor=http://registryadmin:8080
+  #       - homepage.weight=11
+  #     <<: [*deploy-common-ref, *placement-default-ref]
+  #   logging:
+  #     driver: fluentd
+  #     options:
+  #       tag: docker.storage.registryadmin
+  #       fluentd-async-connect: "true"
 
   # ------------------------------------------------------------
   # Docker私有库UI
   # ------------------------------------------------------------
   registryui:
     <<: *service-common-ref
-    image: joxit/docker-registry-ui:latest
+    image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/joxit/docker-registry-ui:2.5.7
     environment:
       <<: *env-common-ref
       REGISTRY_URL: https://registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}
@@ -186,7 +186,7 @@ services:
   # ------------------------------------------------------------
   registryfrontend:
     <<: *service-common-ref
-    image: konradkleine/docker-registry-frontend:v2
+    image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/konradkleine/docker-registry-frontend:v2
     environment:
       <<: *env-common-ref
       ENV_DOCKER_REGISTRY_HOST: registry
@@ -223,7 +223,7 @@ services:
   # ------------------------------------------------------------
   cookiecloud:
     <<: *service-common-ref
-    image: easychen/cookiecloud:latest
+    image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/easychen/cookiecloud:2023.01.20.16.39
     deploy:
       labels:
         - traefik.enable=true
