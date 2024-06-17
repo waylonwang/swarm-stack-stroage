@@ -1,4 +1,4 @@
-name: Trigger ImagePusher Repo's Swarm Action
+name: Deploy Images
 
 on:
   push:
