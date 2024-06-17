@@ -191,6 +191,7 @@ services:
   # ------------------------------------------------------------
   registryui:
     <<: *service-common-ref
+    #image-ref: joxit/docker-registry-ui:2.5.7
     image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/joxit/docker-registry-ui:2.5.7
     environment:
       <<: *env-common-ref
@@ -231,6 +232,7 @@ services:
   # ------------------------------------------------------------
   registryfrontend:
     <<: *service-common-ref
+    #image-ref: konradkleine/docker-registry-frontend:v2
     image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/konradkleine/docker-registry-frontend:v2
     environment:
       <<: *env-common-ref
