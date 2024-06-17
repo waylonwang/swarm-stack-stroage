@@ -72,7 +72,7 @@ services:
   # ------------------------------------------------------------
   registry:
     <<: *service-common-ref
-
+    #image-ref: library/registry:2.8.3
     image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/library/registry:2.8.3
     ports:
       # 内网直接访问端口
