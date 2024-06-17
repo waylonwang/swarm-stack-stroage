@@ -43,6 +43,11 @@ services:
       ADMIN_TOKEN: ${VAULTWARDEN_ADMIN_TOKEN}
     volumes:
       - nfs_vaultwarden:/data
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.storage.vaultwarden
+        fluentd-async-connect: "true"
     deploy:
       labels:
         - traefik.enable=true
@@ -60,11 +65,6 @@ services:
         - homepage.weight=1
       <<: [*deploy-common-ref, *placement-default-ref]
       replicas: 2
-    logging:
-      driver: fluentd
-      options:
-        tag: docker.storage.vaultwarden
-        fluentd-async-connect: "true"
 
   # ------------------------------------------------------------
   # Docker私有镜像库
@@ -84,6 +84,11 @@ services:
     volumes:
       - nfs_registry_conf:/etc/docker/registry
       - nfs_registry_data:/var/lib/registry
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.storage.registry
+        fluentd-async-connect: "true"
     deploy:
       labels:
         - traefik.enable=true
@@ -101,11 +106,47 @@ services:
         - homepage.siteMonitor=http://registryfrontend:80
         - homepage.weight=10
       <<: [*deploy-common-ref, *placement-default-ref]
+
+  # ------------------------------------------------------------
+  # Docker私有镜像库
+  # ------------------------------------------------------------
+  mirror:
+    <<: *service-common-ref
+    image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/library/registry:2.8.3
+    # ports:
+      # 内网直接访问端口
+      # - 5000:5000
+    environment:
+      <<: [*env-common-ref, *env-proxy-ref]
+      # 启用mirror模式，但会导致无法push，仅standalone模式可以push，如需push须临时注释REGISTRY_PROXY_REMOTEURL后部署
+      # REGISTRY_PROXY_REMOTEURL: ${REGISTRY_PROXY_REMOTEURL}
+      REGISTRY_PROXY_USERNAME: ${REGISTRY_PROXY_USERNAME}
+      REGISTRY_PROXY_PASSWORD: ${REGISTRY_PROXY_PASSWORD}
+    volumes:
+      - nfs_mirror_conf:/etc/docker/registry
+      - nfs_mirror_data:/var/lib/registry
     logging:
       driver: fluentd
       options:
-        tag: docker.storage.registry
+        tag: docker.storage.mirror
         fluentd-async-connect: "true"
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.mirror.rule=Host(`mirror.${DOMAIN_SWARM}`,`mirror.${DOMAIN_EMERGENCY}`)
+        - traefik.http.routers.mirror.entrypoints=websecure
+        - traefik.http.routers.mirror.service=mirror
+        - traefik.http.routers.mirror.middlewares=cors-headers@file,normal-chain@file # registryui访问需要CORS标头
+        - traefik.http.services.mirror.loadbalancer.server.port=5000
+        - homepage.group=Storage
+        - homepage.name=Docker Mirror
+        - homepage.icon=docker.png
+        - homepage.description=Docker Mirror
+        - homepage.href=https://registryui.${DOMAIN_SWARM}:${EXTERNAL_PORT}
+        - homepage.ping=mirror
+        - homepage.siteMonitor=http://registryui:80
+        - homepage.weight=11
+      <<: [*deploy-common-ref, *placement-default-ref]
 
   # ------------------------------------------------------------
   # Docker私有库Manager
@@ -163,6 +204,11 @@ services:
       # Portainer Stack生成的容器环境变量有问题，无法正确更新90-docker-registry-ui.sh
       # 挂载卷用以手工替换/docker-entrypoint.d/90-docker-registry-ui.sh中的环境变量
       # - nfs_registryui:/docker-entrypoint.d
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.storage.registryui
+        fluentd-async-connect: "true"
     deploy:
       labels:
         - traefik.enable=true
@@ -171,19 +217,14 @@ services:
         - traefik.http.routers.registryui.service=registryui
         - traefik.http.routers.registryui.middlewares=auth,normal-chain@file
         - traefik.http.services.registryui.loadbalancer.server.port=80
-        - homepage.group=Storage
-        - homepage.name=Docker Registry UI
-        - homepage.icon=docker.png
-        - homepage.href=https://registryui.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
-        - homepage.description=Docker私有库UI
-        - homepage.siteMonitor=http://registryui:80
-        - homepage.weight=12
+        # - homepage.group=Storage
+        # - homepage.name=Docker Registry UI
+        # - homepage.icon=docker.png
+        # - homepage.href=https://registryui.${DOMAIN_SWARM}:${EXTERNAL_PORT}/
+        # - homepage.description=Docker私有库UI
+        # - homepage.siteMonitor=http://registryui:80
+        # - homepage.weight=12
       <<: [*deploy-common-ref, *placement-default-ref]
-    logging:
-      driver: fluentd
-      options:
-        tag: docker.storage.registryui
-        fluentd-async-connect: "true"
 
   # ------------------------------------------------------------
   # Docker私有库前端
@@ -200,6 +241,11 @@ services:
       # ENV_USE_SSL: yes
       ENV_DEFAULT_REPOSITORIES_PER_PAGE: 100
       ENV_DEFAULT_TAGS_PER_PAGE: 100
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.storage.registryfrontend
+        fluentd-async-connect: "true"
     deploy:
       labels:
         - traefik.enable=true
@@ -216,11 +262,6 @@ services:
         # - homepage.siteMonitor=http://registryfrontend:80
         # - homepage.weight=13
       <<: [*deploy-common-ref, *placement-default-ref]
-    logging:
-      driver: fluentd
-      options:
-        tag: docker.storage.registryfrontend
-        fluentd-async-connect: "true"
 
   # ------------------------------------------------------------
   # CookieCloud 同步库
@@ -228,6 +269,11 @@ services:
   cookiecloud:
     <<: *service-common-ref
     image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/easychen/cookiecloud:2023.01.20.16.39
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.storage.cookiecloud
+        fluentd-async-connect: "true"
     deploy:
       labels:
         - traefik.enable=true
@@ -243,11 +289,6 @@ services:
         - homepage.ping=cookiecloud
         - homepage.weight=20
       <<: [*deploy-common-ref, *placement-default-ref]
-    logging:
-      driver: fluentd
-      options:
-        tag: docker.storage.cookiecloud
-        fluentd-async-connect: "true"
 
 networks:
   network_cluster:
