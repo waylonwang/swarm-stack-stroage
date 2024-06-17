@@ -35,6 +35,7 @@ services:
   # ------------------------------------------------------------
   vaultwarden:
     <<: *service-common-ref
+    #image-ref: vaultwarden/server:1.30.5
     image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/vaultwarden/server:1.30.5
     environment:
       <<: *env-common-ref
