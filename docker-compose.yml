@@ -310,6 +310,16 @@ volumes:
     driver_opts:
       <<: *driver-common-ref
       device: :${NFS_DEVICE}/storage/registry/data
+  nfs_mirror_conf:
+    driver: local
+    driver_opts:
+      <<: *driver-common-ref
+      device: :${NFS_DEVICE}/storage/mirror/conf
+  nfs_mirror_data:
+    driver: local
+    driver_opts:
+      <<: *driver-common-ref
+      device: :${NFS_DEVICE}/storage/mirror/data
   nfs_registryadmin:
     driver: local
     driver_opts:
