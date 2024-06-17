@@ -35,7 +35,7 @@ services:
   # ------------------------------------------------------------
   vaultwarden:
     <<: *service-common-ref
-    #image-ref: vaultwarden/server:1.30.5
+    # image-ref: vaultwarden/server:1.30.5
     image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/vaultwarden/server:1.30.5
     environment:
       <<: *env-common-ref
@@ -72,7 +72,7 @@ services:
   # ------------------------------------------------------------
   registry:
     <<: *service-common-ref
-    #image-ref: library/registry:2.8.3
+    # image-ref: library/registry:2.8.3
     image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/library/registry:2.8.3
     ports:
       # 内网直接访问端口
@@ -114,6 +114,7 @@ services:
   # ------------------------------------------------------------
   mirror:
     <<: *service-common-ref
+    # image-ref: library/registry:2.8.3
     image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/library/registry:2.8.3
     # ports:
       # 内网直接访问端口
@@ -272,6 +273,7 @@ services:
   # ------------------------------------------------------------
   cookiecloud:
     <<: *service-common-ref
+    # image-ref: easychen/cookiecloud:2023.01.20.16.39
     image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/easychen/cookiecloud:2023.01.20.16.39
     logging:
       driver: fluentd
