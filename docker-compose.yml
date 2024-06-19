@@ -198,12 +198,12 @@ services:
     image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/joxit/docker-registry-ui:2.5.7
     environment:
       <<: *env-common-ref
-      REGISTRY_URL: https://registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}
+      REGISTRY_URL: https://mirror.${DOMAIN_SWARM}:${EXTERNAL_PORT}
       DELETE_IMAGES: "true"
-      REGISTRY_TITLE: Swarm Registry
+      REGISTRY_TITLE: Swarm Mirror
       SINGLE_REGISTRY: "false"
       TAGLIST_ORDER: alpha-asc;num-desc
-      NGINX_PROXY_PASS_URL: http://registry:5000
+      NGINX_PROXY_PASS_URL: http://mirror:5000
     # volumes:
       # Portainer Stack生成的容器环境变量有问题，无法正确更新90-docker-registry-ui.sh
       # 挂载卷用以手工替换/docker-entrypoint.d/90-docker-registry-ui.sh中的环境变量
