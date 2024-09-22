@@ -35,8 +35,8 @@ services:
   # ------------------------------------------------------------
   vaultwarden:
     <<: *service-common-ref
-    # image-ref: vaultwarden/server:1.30.5
-    image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/vaultwarden/server:1.30.5
+    # image-ref: vaultwarden/server:1.32.0
+    image: registry.${DOMAIN_SWARM}:${EXTERNAL_PORT}/vaultwarden/server:1.32.0
     environment:
       <<: *env-common-ref
       SIGNUPS_ALLOWED: "false"
